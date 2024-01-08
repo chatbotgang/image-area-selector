@@ -1,4 +1,4 @@
-# Image Map Editor
+# Image Area Selector
 
 ## Instructions
 
