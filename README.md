@@ -27,7 +27,7 @@ Note: emulating the look and feel of the sample images is encouraged but the mor
 ## Technical Expectations
 
 - Use TypeScript, React hooks, and functional components to develop the application.
-- Using third party packages installed with `pnpm` is welcome; you aren't required to (and probably shouldn’t) write everything from scratch, but we may ask about why you chose a particular approach.
+- Using third party packages installed with `pnpm` is welcome; you aren't required to (and probably shouldn't) write everything from scratch, but we may ask about why you chose a particular approach.
 - For CSS-in-JS we suggest (but do not require) using [Emotion](https://emotion.sh/docs/introduction).
 - Clean and readable code style is encouraged!
 
