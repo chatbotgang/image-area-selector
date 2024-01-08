@@ -1,0 +1,16 @@
+{
+  "version": "0.2",
+  "enableGlobDot": true,
+  "files": ["**"],
+  "ignorePaths": [
+    "/.git",
+    "/.gitignore",
+    ".vscode/extensions.json",
+    "pnpm-lock.yaml"
+  ],
+  "useGitignore": true,
+  "allowCompoundWords": true,
+  "enableFiletypes": ["*"],
+  "includeRegExpList": ["[\u0020-\u024F]"],
+  "words": []
+}
