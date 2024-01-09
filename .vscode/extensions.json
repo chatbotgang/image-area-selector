@@ -3,7 +3,6 @@
     "dbaeumer.vscode-eslint",
     "esbenp.prettier-vscode",
     "gruntfuggly.todo-tree",
-    "streetsidesoftware.code-spell-checker",
-    "stylelint.vscode-stylelint"
+    "streetsidesoftware.code-spell-checker"
   ]
 }

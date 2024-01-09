@@ -42,7 +42,7 @@ jobs:
         uses: tj-actions/eslint-changed-files@v19.0.1
         with:
           token: ${{secrets.GITHUB_TOKEN}}
-          config_path: '.eslintrc.cjs'
+          config_path: ".eslintrc.cjs"
 
       - name: Check types
         uses: EPMatt/reviewdog-action-tsc@v1
