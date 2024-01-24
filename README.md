@@ -39,3 +39,9 @@ Note: emulating the look and feel of the sample images is encouraged but the mor
 - Team members may leave some comments on your PR as code review; feel welcome to respond and interact there, or send a private message if you prefer.
 
 If you have any questions about the assignment or the process, you are welcome to send an email and ask. Thank you for taking the time to complete this application, and good luck!
+
+## Implement Summary
+1. I had finished image upload component, and try to make a multipule rectangles selector.
+2. As a senior front-end Engineer, I fully understand the redux & redux-toolkit will be better way to manager our state. On the other hand, I would let you know how deep I have learn form React library. There's my education blogs which had been  attended IThome ironman competition. [->link](https://ithelp.ithome.com.tw/users/20129020/ironman/5360) If you want to know how I implement store please checked out [my Medium's article.](https://medium.com/@LeeLuciano/react-%E7%9A%84%E9%82%A3%E4%BA%9B%E4%BA%8B-context-provider-6c2cb3603fc9)
+3. I choice vanilla way to Implement our project. There's dilemma when I deal with the resizing proccess. I couldn't find out a solution which can do mouse move event accurately like the third party library that's called react-image-corp.
+4. Please ignore the react_corp path, I install it as reference when I was developing.

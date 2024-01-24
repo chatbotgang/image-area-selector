@@ -15,6 +15,8 @@ export interface RectInfo {
 
 const WRAPPER_WIDTH: number = 355;
 const WRAPPER_HEIGHT: number = 156;
+const MIN_WIDTH = 10;
+const MIN_HEIGHT = 10;
 
 const RectBlock: FC<{
   onDel: (info: RectInfo) => void;
@@ -148,67 +150,92 @@ const PreviewImg: FC<{ imgUrl: string }> = ({ imgUrl }) => {
     if (resizing.trigger && resizing.id !== null && resizing.dir !== null) {
       const wrapperBounds = selectorRef.current?.getBoundingClientRect();
       const adjRects = rects.map((rect, idx) => {
-        if (idx === resizing.id) {
+        if (idx === resizing.id && wrapperBounds) {
           const newRect = { ...rect };
-          // const analyzeX = Math.min(
-          //   WRAPPER_WIDTH - newRect.x,
-          //   Math.max(10, e.clientX - newRect.x),
-          // );
-          // const analyzeY = Math.max(10, e.clientY - newRect.y);
-          let calcX = e.clientX - newRect.x;
-          let calcY = e.clientY - newRect.y;
-
-          calcX = Math.max(calcX, 10);
-          calcY = Math.max(calcY, 10);
-          if (wrapperBounds) {
-            if (newRect.x + calcX > wrapperBounds.right) {
-              calcX = wrapperBounds.right - newRect.x;
-            }
-            if (newRect.y + calcY > wrapperBounds.bottom) {
-              calcY = wrapperBounds.bottom - newRect.y;
-            }
-          }
-          // 更新矩形的尺寸
-          // newRect.width = calcX;
-          // newRect.height = calcY;
+          let newWidth = newRect.width;
+          let newHeight = newRect.height;
+          let newX = newRect.x;
+          let newY = newRect.y;
           console.log("default :", rect);
           switch (resizing.dir) {
             case Dir.BOTTOM_RIGHT:
-              newRect.width = calcX;
-              newRect.height = calcY;
+              newWidth = Math.min(
+                Math.max(e.clientX - newX, MIN_WIDTH),
+                wrapperBounds.right - newX,
+              );
+              newHeight = Math.min(
+                Math.max(e.clientY - newY, MIN_HEIGHT),
+                wrapperBounds.bottom - newY,
+              );
               break;
             case Dir.TOP_RIGHT:
-              newRect.width = calcX;
-              newRect.height += newRect.y - e.clientY;
-              newRect.y = e.clientY;
+              newWidth = Math.min(
+                Math.max(e.clientX - newX, MIN_WIDTH),
+                wrapperBounds.right - newX,
+              );
+              newHeight = Math.min(
+                Math.max(newY + newHeight - e.clientY, MIN_HEIGHT),
+                newY + newHeight - wrapperBounds.top,
+              );
+              newY = Math.max(wrapperBounds.top, newY + newHeight - newHeight);
               break;
             case Dir.BOTTOM_LEFT:
-              newRect.width += newRect.x - e.clientX;
-              newRect.x = e.clientX;
-              newRect.height = calcY;
+              newWidth = Math.min(
+                Math.max(newX + newWidth - e.clientX, MIN_WIDTH),
+                newX + newWidth - wrapperBounds.left,
+              );
+              newHeight = Math.min(
+                Math.max(e.clientY - newY, MIN_HEIGHT),
+                wrapperBounds.bottom - newY,
+              );
+              newX = Math.max(wrapperBounds.left, newX + newWidth - newWidth);
               break;
             case Dir.TOP_LEFT:
-              newRect.width += newRect.x - e.clientX;
-              newRect.x = e.clientX;
-              newRect.height += newRect.y - e.clientY;
-              newRect.y = e.clientY;
+              newWidth = Math.min(
+                Math.max(newX + newWidth - e.clientX, MIN_WIDTH),
+                newX + newWidth - wrapperBounds.left,
+              );
+              newHeight = Math.min(
+                Math.max(newY + newHeight - e.clientY, MIN_HEIGHT),
+                newY + newHeight - wrapperBounds.top,
+              );
+              newX = Math.max(wrapperBounds.left, newX + newWidth - newWidth);
+              newY = Math.max(wrapperBounds.top, newY + newHeight - newHeight);
               break;
             case Dir.TOP:
-              newRect.height += newRect.y - e.clientY;
-              newRect.y = e.clientY;
+              newHeight = Math.min(
+                Math.max(newY + newHeight - e.clientY, MIN_HEIGHT),
+                newY + newHeight - wrapperBounds.top,
+              );
+              newY = Math.max(wrapperBounds.top, newY + newHeight - newHeight);
               break;
             case Dir.BOTTOM:
-              newRect.height = calcY;
+              newHeight = Math.min(
+                Math.max(e.clientY - newY, MIN_HEIGHT),
+                wrapperBounds.bottom - newY,
+              );
               break;
             case Dir.LEFT:
-              newRect.width += newRect.x - e.clientX;
-              newRect.x = e.clientX;
+              newWidth = Math.min(
+                Math.max(newX + newWidth - e.clientX, MIN_WIDTH),
+                newX + newWidth - wrapperBounds.left,
+              );
+              newX = Math.max(wrapperBounds.left, newX + newWidth - newWidth);
               break;
             case Dir.RIGHT:
-              newRect.width = calcX;
+              newWidth = Math.min(
+                Math.max(e.clientX - newX, MIN_WIDTH),
+                wrapperBounds.right - newX,
+              );
               break;
           }
-          return newRect;
+          return {
+            ...newRect,
+            x: newX,
+            y: newY,
+            width: newWidth,
+            height: newHeight,
+          };
         }
         return rect;
       });
@@ -216,6 +243,15 @@ const PreviewImg: FC<{ imgUrl: string }> = ({ imgUrl }) => {
       console.log("adj arr: ", adjRects);
       setRects({ rects: adjRects });
     }
+  };
+
+  const checkOverlap = (rectA: RectInfo, rectB: RectInfo): boolean => {
+    return !(
+      rectA.x + rectA.width < rectB.x ||
+      rectA.x > rectB.x + rectB.width ||
+      rectA.y + rectA.height < rectB.y ||
+      rectA.y > rectB.y + rectB.height
+    );
   };
 
   const handleMouseUp = (e: MouseEvent<HTMLDivElement>) => {
@@ -227,8 +263,21 @@ const PreviewImg: FC<{ imgUrl: string }> = ({ imgUrl }) => {
         width: Math.abs(endPosition.x - startPosition.x),
         height: Math.abs(endPosition.y - startPosition.y),
       };
-      setIsSelecting(false);
-      setRects({ rects: [...rects, selectedRect] });
+      if (rects.length > 0) {
+        const chkArr = rects
+          .map((el) => checkOverlap(el, selectedRect))
+          .filter((e) => e === true);
+        if (chkArr.length > 0) {
+          console.log("here");
+          setIsSelecting(false);
+        } else {
+          setIsSelecting(false);
+          setRects({ rects: [...rects, selectedRect] });
+        }
+      } else {
+        setIsSelecting(false);
+        setRects({ rects: [...rects, selectedRect] });
+      }
     }
     if (resizing.trigger && resizing.id !== null && resizing.dir !== null) {
       setResizing({ resizingInfo: { trigger: false, id: null, dir: null } });
@@ -290,7 +339,12 @@ const PreviewImg: FC<{ imgUrl: string }> = ({ imgUrl }) => {
           <img
             src={imgUrl}
             alt="Image Preview"
-            style={{ width: "100%", height: "100%", pointerEvents: "none" }}
+            style={{
+              width: "100%",
+              height: "100%",
+              pointerEvents: "none",
+              touchAction: "none",
+            }}
           />
         </div>
       </div>
@@ -303,6 +357,7 @@ const PreviewImg: FC<{ imgUrl: string }> = ({ imgUrl }) => {
           {isAddRect ? `stop add` : `add Rect`}
         </button>
       </div>
+      <p>{JSON.stringify(rects)}</p>
     </div>
   );
 };

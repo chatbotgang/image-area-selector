@@ -1,13 +1,14 @@
-import ImgUpload from "./components/ImgUpload";
-import NavBar from "./components/NavBar";
+import { BrowserRouter } from "react-router-dom";
 import { StoreContext, useStoreData } from "./hooks/store";
+import RouteConf from "./RouteConf";
 
 export function App() {
   const store = useStoreData();
   return (
     <StoreContext.Provider value={store}>
-      <NavBar />
-      <ImgUpload />
+      <BrowserRouter>
+        <RouteConf />
+      </BrowserRouter>
     </StoreContext.Provider>
   );
 }

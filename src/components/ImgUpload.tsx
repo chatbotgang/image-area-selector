@@ -1,5 +1,4 @@
 import { FC, useRef } from "react";
-import PreviewImg from "./PreviewImg";
 import { useStore } from "../hooks/store";
 
 const ImgUpload: FC = () => {
@@ -13,7 +12,6 @@ const ImgUpload: FC = () => {
       fileRef.current.files.length > 0
     ) {
       const file = fileRef.current.files[0];
-      // 處理檔案上傳邏輯
       setPreviewer({ imgUrl: URL.createObjectURL(file) });
       console.log("files: ", file);
     }
@@ -26,8 +24,7 @@ const ImgUpload: FC = () => {
     setRects({ rects: [] });
   };
   return (
-    <div className="pt-14 mx-auto">
-      {/* <h1>uploader</h1> */}
+    <div className="pt-4">
       <div id="uploader" className="flex justify-center">
         <label htmlFor="imgUpload">
           <input
@@ -48,15 +45,16 @@ const ImgUpload: FC = () => {
           )}
         </label>
       </div>
-      {previewer && <PreviewImg imgUrl={previewer} />}
-      <div id="controls" className="flex justify-center items-center">
-        <button
-          className="bg-blue-500 text-white font-bold py-2 px-4 rounded-lg my-2"
-          onClick={resetFile}
-        >
-          reset
-        </button>
-      </div>
+      {previewer && (
+        <div id="controls" className="flex justify-center items-center">
+          <button
+            className="bg-blue-500 text-white font-bold py-2 px-4 rounded-lg my-2"
+            onClick={resetFile}
+          >
+            reset image
+          </button>
+        </div>
+      )}
     </div>
   );
 };
