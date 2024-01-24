@@ -1,10 +1,13 @@
+import ImgUpload from "./components/ImgUpload";
 import NavBar from "./components/NavBar";
+import { StoreContext, useStoreData } from "./hooks/store";
 
 export function App() {
+  const store = useStoreData();
   return (
-    <div className="container mx-auto">
+    <StoreContext.Provider value={store}>
       <NavBar />
-      <div>hello</div>
-    </div>
+      <ImgUpload />
+    </StoreContext.Provider>
   );
 }
