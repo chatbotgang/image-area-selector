@@ -18,6 +18,11 @@ export enum Dir {
   BOTTOM_LEFT = "BOTTOM_LEFT",
 }
 
+interface Position {
+  x: number;
+  y: number;
+}
+
 export interface Store {
   imgUrl: string | null;
   rects: RectInfo[];
@@ -25,6 +30,11 @@ export interface Store {
     trigger: boolean;
     id: number | null;
     dir: Dir | null;
+  };
+  addRectInfo: {
+    startPosition: Position;
+    endPosition: Position;
+    isSelecting: boolean;
   };
 }
 
@@ -36,6 +46,11 @@ export const useStoreData = () => {
       trigger: false,
       id: null,
       dir: null,
+    },
+    addRectInfo: {
+      startPosition: { x: 0, y: 0 },
+      endPosition: { x: 0, y: 0 },
+      isSelecting: false,
     },
   });
   const get = useCallback(() => store.current, []);

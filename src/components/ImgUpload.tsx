@@ -13,7 +13,6 @@ const ImgUpload: FC = () => {
     ) {
       const file = fileRef.current.files[0];
       setPreviewer({ imgUrl: URL.createObjectURL(file) });
-      console.log("files: ", file);
     }
   };
   const resetFile = () => {

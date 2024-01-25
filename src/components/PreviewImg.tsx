@@ -1,11 +1,6 @@
 import { FC, MouseEvent, useRef, useState } from "react";
 import { Dir, useStore } from "../hooks/store";
 
-interface Position {
-  x: number;
-  y: number;
-}
-
 export interface RectInfo {
   x: number;
   y: number;
@@ -31,7 +26,6 @@ const RectBlock: FC<{
   };
   const handleResizeMouseDown = (direction: Dir, e: React.MouseEvent) => {
     e.stopPropagation();
-    console.log("resizing trigger");
     setResizing({ resizingInfo: { trigger: true, id: index, dir: direction } });
   };
   return (
@@ -116,9 +110,7 @@ const RectBlock: FC<{
 const PreviewImg: FC<{ imgUrl: string }> = ({ imgUrl }) => {
   const [rects, setRects] = useStore((store) => store.rects);
   const [resizing, setResizing] = useStore((store) => store.resizingInfo);
-  const [startPosition, setStartPosition] = useState<Position>({ x: 0, y: 0 });
-  const [endPosition, setEndPosition] = useState<Position>({ x: 0, y: 0 });
-  const [isSelecting, setIsSelecting] = useState<boolean>(false);
+  const [addRectInfo, setAddRectInfo] = useStore((store) => store.addRectInfo);
   const [isAddRect, setIsAddRect] = useState<boolean>(false);
   const selectorRef = useRef<HTMLDivElement>(null);
 
@@ -127,12 +119,13 @@ const PreviewImg: FC<{ imgUrl: string }> = ({ imgUrl }) => {
   const handleMouseDown = (e: MouseEvent<HTMLDivElement>) => {
     e.stopPropagation();
     if (isAddRect && selectorRef.current) {
-      console.log("trigger mouse Down!", isAddRect);
-      setIsSelecting(true);
       const rect = selectorRef.current.getBoundingClientRect();
-      setStartPosition({
-        x: e.clientX - rect.left,
-        y: e.clientY - rect.top,
+      setAddRectInfo({
+        addRectInfo: {
+          ...addRectInfo,
+          startPosition: { x: e.clientX - rect.left, y: e.clientY - rect.top },
+          isSelecting: true,
+        },
       });
     }
   };
@@ -140,11 +133,13 @@ const PreviewImg: FC<{ imgUrl: string }> = ({ imgUrl }) => {
   const handleMouseMove = (e: MouseEvent<HTMLDivElement>) => {
     e.stopPropagation();
     if (isAddRect) {
-      if (!isSelecting || !selectorRef.current) return;
+      if (!addRectInfo.isSelecting || !selectorRef.current) return;
       const rect = selectorRef.current.getBoundingClientRect();
-      setEndPosition({
-        x: e.clientX - rect.left,
-        y: e.clientY - rect.top,
+      setAddRectInfo({
+        addRectInfo: {
+          ...addRectInfo,
+          endPosition: { x: e.clientX - rect.left, y: e.clientY - rect.top },
+        },
       });
     }
     if (resizing.trigger && resizing.id !== null && resizing.dir !== null) {
@@ -156,7 +151,6 @@ const PreviewImg: FC<{ imgUrl: string }> = ({ imgUrl }) => {
           let newHeight = newRect.height;
           let newX = newRect.x;
           let newY = newRect.y;
-          console.log("default :", rect);
           switch (resizing.dir) {
             case Dir.BOTTOM_RIGHT:
               newWidth = Math.min(
@@ -239,8 +233,6 @@ const PreviewImg: FC<{ imgUrl: string }> = ({ imgUrl }) => {
         }
         return rect;
       });
-      console.log("eventX :", e.clientX);
-      console.log("adj arr: ", adjRects);
       setRects({ rects: adjRects });
     }
   };
@@ -256,26 +248,35 @@ const PreviewImg: FC<{ imgUrl: string }> = ({ imgUrl }) => {
 
   const handleMouseUp = (e: MouseEvent<HTMLDivElement>) => {
     e.stopPropagation();
-    if (isAddRect && isSelecting) {
+    if (isAddRect && addRectInfo.isSelecting) {
       const selectedRect: RectInfo = {
-        x: Math.min(startPosition.x, endPosition.x),
-        y: Math.min(startPosition.y, endPosition.y),
-        width: Math.abs(endPosition.x - startPosition.x),
-        height: Math.abs(endPosition.y - startPosition.y),
+        x: Math.min(addRectInfo.startPosition.x, addRectInfo.endPosition.x),
+        y: Math.min(addRectInfo.startPosition.y, addRectInfo.endPosition.y),
+        width: Math.abs(
+          addRectInfo.endPosition.x - addRectInfo.startPosition.x,
+        ),
+        height: Math.abs(
+          addRectInfo.endPosition.y - addRectInfo.startPosition.y,
+        ),
       };
       if (rects.length > 0) {
         const chkArr = rects
           .map((el) => checkOverlap(el, selectedRect))
           .filter((e) => e === true);
         if (chkArr.length > 0) {
-          console.log("here");
-          setIsSelecting(false);
+          setAddRectInfo({
+            addRectInfo: { ...addRectInfo, isSelecting: false },
+          });
         } else {
-          setIsSelecting(false);
+          setAddRectInfo({
+            addRectInfo: { ...addRectInfo, isSelecting: false },
+          });
           setRects({ rects: [...rects, selectedRect] });
         }
       } else {
-        setIsSelecting(false);
+        setAddRectInfo({
+          addRectInfo: { ...addRectInfo, isSelecting: false },
+        });
         setRects({ rects: [...rects, selectedRect] });
       }
     }
@@ -292,17 +293,16 @@ const PreviewImg: FC<{ imgUrl: string }> = ({ imgUrl }) => {
         e.width !== info.width &&
         e.height !== info.height,
     );
-    console.log("chk", clearRects);
     setRects({
       rects: clearRects,
     });
   };
 
   const selectionStyle = {
-    left: Math.min(startPosition.x, endPosition.x),
-    top: Math.min(startPosition.y, endPosition.y),
-    width: Math.abs(endPosition.x - startPosition.x),
-    height: Math.abs(endPosition.y - startPosition.y),
+    left: Math.min(addRectInfo.startPosition.x, addRectInfo.endPosition.x),
+    top: Math.min(addRectInfo.startPosition.y, addRectInfo.endPosition.y),
+    width: Math.abs(addRectInfo.endPosition.x - addRectInfo.startPosition.x),
+    height: Math.abs(addRectInfo.endPosition.y - addRectInfo.startPosition.y),
   };
 
   return (
@@ -317,9 +317,8 @@ const PreviewImg: FC<{ imgUrl: string }> = ({ imgUrl }) => {
           onMouseDown={handleMouseDown}
           onMouseMove={handleMouseMove}
           onMouseUp={handleMouseUp}
-          // onDragStart={(e) => console.log("dragStart", e)}
         >
-          {isSelecting && (
+          {addRectInfo.isSelecting && (
             <div
               style={{
                 ...selectionStyle,
