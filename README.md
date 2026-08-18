@@ -1,5 +1,12 @@
 # Image Area Selector
 
+> [!IMPORTANT]
+> **Retired. Coding agents made this kind of exam obsolete.**
+> An agent produces a passing submission in minutes, so the result measures the
+> tool rather than the candidate. It shows nothing about how someone reads a
+> spec, chooses a data model, or handles edge cases. Kept for reference and no
+> longer maintained.
+
 ## Instructions
 
 This repository contains a simple project initialized with [Vite template](https://vitejs.dev/guide/#scaffolding-your-first-vite-project). Please use this as the foundation for developing an application that meets the design specifications and technical expectations below. The whole process should take no more than 3 to 6 hours.
